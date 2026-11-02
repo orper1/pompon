@@ -380,7 +380,7 @@ function parent() {
       state.drawings.length ? h('div', { class: 'thumbs' }, state.drawings.slice(0, 9).map(d => h('img', { src: d.png, alt: d.name }))) : h('p', { class: 'muted' }, 'Aucun dessin pour l’instant.'),
     ),
     h('div', { class: 'card' },
-      h('h3', {}, 'Données'),
+      h('h3', {}, `Données · version ${VERSION}`),
       h('div', { class: 'grid2' },
         h('button', { class: 'btn ghost sm', style: 'width:100%', onclick: () => { const a = h('a', { href: 'data:application/json,' + encodeURIComponent(JSON.stringify(state)), download: 'pompon-sauvegarde.json' }); a.click(); } }, 'Exporter'),
         h('button', { class: 'btn ghost sm', style: 'width:100%', onclick: () => { if (confirm('Tout remettre à zéro ?')) { state = defaults(); save(); parent(); } } }, 'Réinitialiser'),
@@ -453,7 +453,12 @@ setInterval(() => {
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') syncPush(); });
 
 /* ============================== Démarrage ============================== */
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+export const VERSION = '2.1';
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(reg => { reg.update(); setInterval(() => reg.update(), 60 * 60 * 1000); }).catch(() => {});
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded) return; reloaded = true; location.reload(); });
+}
 renderTimer();
 function onboarding() {
   const input = h('input', { type: 'text', placeholder: 'Son prénom', style: 'padding:12px 14px;border-radius:14px;border:2px solid var(--line);font-size:18px;width:100%;text-align:center;margin-bottom:14px' });
