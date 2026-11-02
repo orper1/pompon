@@ -1,5 +1,5 @@
 // Service worker : l'app fonctionne hors ligne une fois installée.
-const CACHE = 'pompon-v1';
+const CACHE = 'pompon-v2';
 const ASSETS = ['./', './index.html', './styles.css', './app.js', './games.js', './data.js', './sync.js', './manifest.webmanifest', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {

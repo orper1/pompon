@@ -13,14 +13,29 @@ const defaults = () => ({
   lock: null,
   updatedAt: 0,
 });
+// Profils : 'enfant' (le vrai) et 'test' (pour essayer sans toucher aux progrès). Chaque profil a son propre état.
+let profile = localStorage.getItem('pompon.profile') || 'enfant';
+const slotKey = (p) => p === 'enfant' ? KEY : `pompon.slot.${p}`;
+const hasProfile = (p) => !!localStorage.getItem(slotKey(p));
 export let state = load();
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) return { ...defaults(), ...s, settings: { ...defaults().settings, ...s.settings } }; } catch {}
+  try { const s = JSON.parse(localStorage.getItem(slotKey(profile))); if (s) return { ...defaults(), ...s, settings: { ...defaults().settings, ...s.settings } }; } catch {}
   return defaults();
 }
 export function save(touch = true) {
   if (touch) state.updatedAt = Date.now();
-  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
+  try { localStorage.setItem(slotKey(profile), JSON.stringify(state)); } catch {}
+}
+function switchProfile(p) {
+  save(false);
+  profile = p; localStorage.setItem('pompon.profile', p);
+  if (!hasProfile(p)) {
+    state = { ...defaults(), child: p === 'test' ? 'Test' : 'Mon trésor', named: true };
+    state.settings.sync.code = ''; // le profil test ne synchronise jamais
+    save(false);
+  } else state = load();
+  localStorage.removeItem('pompon.timerEnd'); timerEnd = 0; renderTimer();
+  home();
 }
 const dom = (id) => state.domains[id] || (state.domains[id] = { level: 1, stars: 0, lessons: 0 });
 const today = () => new Date().toISOString().slice(0, 10);
@@ -117,6 +132,7 @@ function home() {
     h('div', { class: 'topbar' },
       h('div', { html: mascotSVG('bounce') }),
       h('div', { class: 'who' }, h('div', { class: 'name' }, state.child), h('div', { class: 'sub' }, `${streak()} jour${streak() > 1 ? 's' : ''} de suite ☀️`)),
+      profile === 'test' && h('span', { class: 'pill', style: 'background:#FFF1E8;border-color:var(--orange)' }, '🧪 test'),
       h('span', { class: 'pill' }, '⭐ ', String(totalStars())),
       h('button', { class: 'lock', 'aria-label': 'Espace parents', onclick: () => gate(parent) }, '🔒'),
     ),
@@ -248,10 +264,21 @@ function parent() {
   app.innerHTML = '';
   const weekSec = Object.entries(state.time).filter(([k]) => (Date.now() - new Date(k)) < 7 * 864e5).reduce((a, [, v]) => a + v, 0);
   const fmt = (s) => s < 60 ? `${Math.round(s)} s` : `${Math.round(s / 60)} min`;
+  const profileCard = h('div', { class: 'card' },
+    h('h3', {}, '👤 Profils'),
+    h('p', { class: 'muted' }, profile === 'test' ? 'Profil TEST actif : rien n’est synchronisé, les progrès de l’enfant sont intacts.' : `Profil de ${state.child} actif.`),
+    h('div', { class: 'grid2' },
+      profile === 'test'
+        ? h('button', { class: 'btn sm', style: 'width:100%', onclick: () => switchProfile('enfant') }, '👧 Retour au profil enfant')
+        : h('button', { class: 'btn orange sm', style: 'width:100%', onclick: () => switchProfile('test') }, hasProfile('test') ? '🧪 Passer en profil test' : '🧪 Créer un profil test'),
+      profile === 'test' && h('button', { class: 'btn ghost sm', style: 'width:100%', onclick: () => { if (confirm('Supprimer le profil test ?')) { localStorage.removeItem(slotKey('test')); switchProfile('enfant'); } } }, 'Supprimer le profil test'),
+    ),
+  );
   const syncCard = h('div', { class: 'card' });
   const renderSync = () => {
     const cfg = state.settings.sync;
     syncCard.innerHTML = '';
+    if (profile === 'test') { syncCard.append(h('h3', {}, '📱 Lien papa & maman'), h('p', { class: 'muted' }, 'Désactivé sur le profil test.')); return; }
     syncCard.append(
       h('h3', {}, '📱 Lien papa & maman'),
       h('p', { class: 'muted' }, 'Ouvrez cette app sur vos téléphones et entrez le même code famille : vous verrez les progrès et les dessins.'),
@@ -284,6 +311,7 @@ function parent() {
       h('div', { class: 'field' }, h('label', {}, 'Minuteur par défaut'), h('select', { onchange: (e) => { state.settings.timer = Number(e.target.value); save(); } }, [5, 10, 15, 20, 30].map(m => h('option', { value: m, selected: state.settings.timer === m }, `${m} minutes`)))),
       h('div', { class: 'row' }, h('span', {}, 'Voix (lecture à haute voix)'), h('button', { class: `btn sm ${state.settings.voice ? '' : 'ghost'}`, onclick: (e) => { state.settings.voice = !state.settings.voice; save(); e.target.textContent = state.settings.voice ? 'Activée' : 'Coupée'; e.target.className = `btn sm ${state.settings.voice ? '' : 'ghost'}`; } }, state.settings.voice ? 'Activée' : 'Coupée')),
     ),
+    profileCard,
     syncCard,
     h('div', { class: 'card' },
       h('h3', {}, 'Dessins'),
@@ -302,12 +330,12 @@ function parent() {
 /* ============================== Sync ============================== */
 let pushTimer = null;
 async function syncPush(now = false) {
-  const cfg = state.settings.sync; if (!Sync.isConfigured(cfg)) return;
+  const cfg = state.settings.sync; if (profile === 'test' || !Sync.isConfigured(cfg)) return;
   if (!now) { clearTimeout(pushTimer); pushTimer = setTimeout(() => syncPush(true), 1500); return; }
   await Sync.push(cfg, state);
 }
 async function syncPull() {
-  const cfg = state.settings.sync; if (!Sync.isConfigured(cfg)) return;
+  const cfg = state.settings.sync; if (profile === 'test' || !Sync.isConfigured(cfg)) return;
   const remote = await Sync.pull(cfg);
   state = Sync.merge(state, remote); save(false);
 }
