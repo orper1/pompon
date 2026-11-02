@@ -9,7 +9,7 @@ const defaults = () => ({
   domains: {},
   time: {},
   drawings: [],
-  settings: { voice: true, timer: 10, sync: { url: '', code: '' } },
+  settings: { voice: true, timer: 10, sync: { url: 'https://pompon-be86b-default-rtdb.europe-west1.firebasedatabase.app', code: '' } },
   lock: null,
   updatedAt: 0,
 });

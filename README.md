@@ -29,21 +29,19 @@ Cadenas en haut à droite → addition à résoudre. On y trouve : progrès par 
 
 ## Lien papa & maman (sync entre téléphones)
 
-L'app marche 100 % en local. Pour voir les progrès sur vos téléphones, il faut un petit stockage partagé.
-Choix : **Firebase Realtime Database** (gratuit, sans SDK, 5 minutes) :
+La base est déjà créée (Firebase Realtime Database, projet `pompon`, région europe-west1) et son URL est préremplie dans l'app.
+Il ne reste qu'un **code famille** à entrer, le même sur chaque appareil :
 
-1. https://console.firebase.google.com → *Ajouter un projet* (sans Analytics).
-2. Menu *Créer* → *Realtime Database* → *Créer une base* → région **europe-west1** → *Mode test*.
-3. Onglet *Règles*, remplacer par :
-   ```json
-   { "rules": { "families": { "$code": { ".read": true, ".write": true } } } }
-   ```
-   (accès par code famille uniquement ; choisissez un code long et non devinable, ex. `pompon-lea-7391`).
-4. Copier l'URL de la base (`https://xxx-default-rtdb.europe-west1.firebasedatabase.app`).
-5. Dans l'app → Espace parents → *Lien papa & maman* : coller l'URL, entrer le code famille, **Envoyer**.
-   Sur chaque téléphone : même URL + même code → **Recevoir**.
+1. Tablette de l'enfant → cadenas 🔒 → addition → *Lien papa & maman* → entrer le code → **Envoyer**.
+2. Téléphone de chaque parent → même app, même code → **Recevoir**.
 
 Ensuite, la tablette envoie automatiquement après chaque leçon ; les téléphones reçoivent à l'ouverture de l'espace parents.
+Le code est la seule protection : choisissez-le long et non devinable (ex. `pompon-5c4i-wj0n`).
+
+Pour recréer la base soi-même : console Firebase → Realtime Database → règles :
+```json
+{ "rules": { "families": { "$code": { ".read": true, ".write": true } } } }
+```
 
 ## Installer sur une tablette / un téléphone
 
