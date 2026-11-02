@@ -107,7 +107,7 @@ export const shuffle = (a) => { a = [...a]; for (let i = a.length - 1; i > 0; i-
 export const pick = (a) => a[Math.floor(Math.random() * a.length)];
 export const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const app = $('#app');
-const mascotSVG = (cls = '') => `<svg class="mascot ${cls}" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="horn" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FFB36B"/><stop offset="1" stop-color="#FFD75E"/></linearGradient><linearGradient id="mane" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C7A4FF"/><stop offset="1" stop-color="#FFA2C0"/></linearGradient><linearGradient id="tail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6CCBFF"/><stop offset="1" stop-color="#FFA2C0"/></linearGradient></defs><g transform="translate(100 168)"><path d="M-52 0 a14 14 0 0 1 24 -8 a16 16 0 0 1 30 -4 a16 16 0 0 1 30 4 a14 14 0 0 1 20 8 z" fill="#8BDC8B"/><path d="M-44 0 a13 13 0 0 1 22 -6 a15 15 0 0 1 26 -2 a15 15 0 0 1 24 4 a12 12 0 0 1 16 4 z" fill="#FFD75E"/><path d="M-36 0 a12 12 0 0 1 20 -4 a14 14 0 0 1 22 0 a13 13 0 0 1 20 4 z" fill="#FFA2C0"/><path d="M-26 0 a10 10 0 0 1 16 -2 a12 12 0 0 1 20 2 z" fill="#C7A4FF"/><path d="M-16 0 a8 8 0 0 1 14 0 z" fill="#6CCBFF"/><ellipse cx="-62" cy="-2" rx="5" ry="3" fill="#6CCBFF"/><ellipse cx="62" cy="-4" rx="5" ry="3" fill="#8BDC8B"/><ellipse cx="-56" cy="-14" rx="3" ry="2" fill="#FFA2C0"/></g><path d="M138 118 q26 -4 24 22 q-2 18 -20 18 q12 -8 8 -20 q-3 -10 -14 -12 z" fill="url(#tail)"/><ellipse cx="100" cy="112" rx="40" ry="46" fill="#fff" stroke="#EDE3F5" stroke-width="3"/><ellipse cx="78" cy="152" rx="11" ry="9" fill="#fff" stroke="#EDE3F5" stroke-width="3"/><ellipse cx="122" cy="152" rx="11" ry="9" fill="#fff" stroke="#EDE3F5" stroke-width="3"/><ellipse cx="78" cy="156" rx="7" ry="3.5" fill="#FFA2C0"/><ellipse cx="122" cy="156" rx="7" ry="3.5" fill="#FFA2C0"/><ellipse cx="62" cy="112" rx="9" ry="7" fill="#fff" stroke="#EDE3F5" stroke-width="3" transform="rotate(-20 62 112)"/><ellipse cx="138" cy="112" rx="9" ry="7" fill="#fff" stroke="#EDE3F5" stroke-width="3" transform="rotate(20 138 112)"/><path d="M100 126 l-6 -6 a4 4 0 0 1 6 -4 a4 4 0 0 1 6 4 z" fill="#FF8B8B"/><ellipse cx="100" cy="72" rx="36" ry="32" fill="#fff" stroke="#EDE3F5" stroke-width="3"/><path d="M70 52 l-4 -22 l16 14 z" fill="#fff" stroke="#EDE3F5" stroke-width="3" stroke-linejoin="round"/><path d="M130 52 l4 -22 l-16 14 z" fill="#fff" stroke="#EDE3F5" stroke-width="3" stroke-linejoin="round"/><path d="M72 48 l-2 -12 l9 8 z" fill="#FFA2C0"/><path d="M128 48 l2 -12 l-9 8 z" fill="#FFA2C0"/><path d="M100 42 l-8 2 l8 -30 l8 30 z" fill="url(#horn)"/><path d="M95 32 l10 -2 M94 26 l8 -2 M96 20 l5 -1" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/><path d="M110 40 q22 -6 28 14 q2 10 -8 18 q6 -10 -4 -16 q-10 -4 -16 -2 z" fill="url(#mane)"/><path d="M90 40 q-18 -4 -24 12 q4 -6 14 -4 z" fill="url(#mane)"/><ellipse cx="86" cy="74" rx="6" ry="7.5" fill="#4A4458"/><ellipse cx="114" cy="74" rx="6" ry="7.5" fill="#4A4458"/><circle cx="88.5" cy="71" r="2.4" fill="#fff"/><circle cx="116.5" cy="71" r="2.4" fill="#fff"/><ellipse cx="72" cy="84" rx="7" ry="4.5" fill="#FFC7D6"/><ellipse cx="128" cy="84" rx="7" ry="4.5" fill="#FFC7D6"/><path d="M94 88 q6 6 12 0" stroke="#4A4458" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="95" cy="83" r="1.6" fill="#D9C9E8"/><circle cx="105" cy="83" r="1.6" fill="#D9C9E8"/></svg>`;
+const mascotSVG = (cls = '') => `<img class="mascot ${cls}" src="icons/mascot.png" alt="">`;
 
 function confetti() {
   const c = h('div', { class: 'confetti' });
@@ -139,7 +139,7 @@ function buildSeries(k) {
 function topbar() {
   return h('div', { class: 'topbar' },
     h('div', { html: mascotSVG('bounce') }),
-    h('div', { class: 'who' }, h('div', { class: 'name' }, state.child), h('div', { class: 'sub' }, `${streak()} jour${streak() > 1 ? 's' : ''} de suite ☀️`)),
+    h('div', { class: 'who' }, h('div', { class: 'name' }, state.child), h('div', { class: 'sub' }, `☀️ ${streak()} jour${streak() > 1 ? 's' : ''} de suite`)),
     profile === 'test' && h('span', { class: 'pill warn' }, '🧪 test'),
     h('span', { class: 'pill' }, h('b', { class: 'ico' }, '⭐'), String(totalStars())),
     h('button', { class: 'lock', 'aria-label': 'Espace parents', onclick: () => gate(parent) }, '🔒'),
@@ -453,7 +453,7 @@ setInterval(() => {
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') syncPush(); });
 
 /* ============================== Démarrage ============================== */
-export const VERSION = '2.1';
+export const VERSION = '2.2';
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').then(reg => { reg.update(); setInterval(() => reg.update(), 60 * 60 * 1000); }).catch(() => {});
   let reloaded = false;

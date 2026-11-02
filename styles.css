@@ -74,7 +74,8 @@ input, select { font: inherit; }
 
 /* ---------- Barre du haut ---------- */
 .topbar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-right: 72px; }
-.topbar .mascot { width: 56px; height: 56px; filter: drop-shadow(0 4px 0 rgba(74,68,88,.12)); }
+.topbar .mascot { width: 58px; height: 58px; object-fit: contain; filter: drop-shadow(0 3px 0 rgba(74,68,88,.12)); }
+.sheet .mascot { width: 130px; height: 130px; object-fit: contain; }
 .topbar .who { flex: 1; min-width: 0; }
 .topbar .who .name { font-size: 20px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topbar .who .sub { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
