@@ -57,6 +57,7 @@ function pickSyllable(level) {
   };
 }
 const syllabes = {
+  one(level) { return Math.random() < 0.7 ? copyWord(pick(WORDS.filter(w => w.s.length <= (level <= 1 ? 2 : level <= 3 ? 3 : 4)))) : pickSyllable(level); },
   build(level) {
     const maxS = level <= 1 ? 2 : level <= 3 ? 3 : 4;
     const pool = WORDS.filter(w => w.s.length <= maxS && (level > 1 || w.s.length >= 2));
@@ -100,7 +101,7 @@ function traceLetter(letter) {
     },
   };
 }
-const lettres = { build(level) { const pool = LETTERS[Math.min(level, LETTERS.length) - 1]; return shuffle(pool).slice(0, 5).map(traceLetter); } };
+const lettres = { one(level) { return traceLetter(pick(LETTERS[Math.min(level, LETTERS.length) - 1])); }, build(level) { const pool = LETTERS[Math.min(level, LETTERS.length) - 1]; return shuffle(pool).slice(0, 5).map(traceLetter); } };
 
 /* ---------- 3. Lire : reconnaître lettres et syllabes ---------- */
 function letterBySound(level) {
@@ -128,7 +129,7 @@ function wordByPicture(level) {
     },
   };
 }
-const lire = { build(level) { const ex = []; for (let i = 0; i < 5; i++) ex.push(i % 2 === 0 || level <= 1 ? letterBySound(level) : wordByPicture(level)); return ex; } };
+const lire = { one(level) { return level <= 1 || Math.random() < 0.5 ? letterBySound(level) : wordByPicture(level); }, build(level) { const ex = []; for (let i = 0; i < 5; i++) ex.push(i % 2 === 0 || level <= 1 ? letterBySound(level) : wordByPicture(level)); return ex; } };
 
 /* ---------- 4. Compter ---------- */
 function countItems(level) {
@@ -158,7 +159,7 @@ function addItems(level) {
     },
   };
 }
-const compter = { build(level) { const ex = []; for (let i = 0; i < 5; i++) ex.push(level >= 3 && i % 2 === 1 ? addItems(level) : countItems(level)); return ex; } };
+const compter = { one(level) { return level >= 3 && Math.random() < 0.5 ? addItems(level) : countItems(level); }, build(level) { const ex = []; for (let i = 0; i < 5; i++) ex.push(level >= 3 && i % 2 === 1 ? addItems(level) : countItems(level)); return ex; } };
 
 /* ---------- 5. Dessiner : personnage kawaii guidé ---------- */
 const COLORS = ['#4A3F55', '#FF8FAB', '#7FB3FF', '#7BD389', '#FFD166', '#B892FF', '#FFAB76', '#6FD6C8'];
@@ -202,14 +203,14 @@ function guidedDrawing(model) {
     },
   };
 }
-const dessin = { build(level) { return [guidedDrawing(DRAWINGS[(level - 1) % DRAWINGS.length])]; } };
+const dessin = { one(level) { return guidedDrawing(DRAWINGS[(level - 1) % DRAWINGS.length]); }, build(level) { return [guidedDrawing(DRAWINGS[(level - 1) % DRAWINGS.length])]; } };
 
 /* ---------- 6. Équilibre : la tour qui tremble (mesurer le risque) ---------- */
 function tower(round) {
   const PAST = ['#FFD7E2', '#CDEBB8', '#D6E6FF', '#FFF0C2', '#E6D9FF', '#FFE0CC', '#CFF3EE'];
   const FACES = ['🐱', '🐰', '🐻', '🐸', '🐥', '🐼', '🦊'];
   return {
-    prompt: `La tour qui tremble · manche ${round}`, say: 'Empile des blocs. Plus la tour est haute, plus elle tremble ! Quand tu t’arrêtes, tu gagnes une étoile par bloc. Si elle tombe, zéro.', gain: 5,
+    prompt: round > 1 ? `La tour qui tremble · manche ${round}` : 'La tour qui tremble', say: 'Empile des blocs. Plus la tour est haute, plus elle tremble ! Quand tu t’arrêtes, tu gagnes une étoile par bloc. Si elle tombe, zéro.', gain: 5,
     mount(stage, ctx) {
       let n = 0, over = false;
       const tw = h('div', { class: 'tower' });
@@ -236,7 +237,7 @@ function tower(round) {
     },
   };
 }
-const equilibre = { build() { return [tower(1), tower(2), tower(3)]; } };
+const equilibre = { one() { return tower(1); }, build() { return [tower(1), tower(2), tower(3)]; } };
 
 /* ---------- 7. Quiz & curiosité ---------- */
 function quizItem(q) {
@@ -255,6 +256,6 @@ function factItem(f) {
     },
   };
 }
-const quiz = { build(level) { const qs = shuffle(QUIZ).slice(0, 3).map(quizItem); const fs = shuffle(FACTS).slice(0, 2).map(factItem); return shuffle([...qs, ...fs]); } };
+const quiz = { one() { return Math.random() < 0.6 ? quizItem(pick(QUIZ)) : factItem(pick(FACTS)); }, build(level) { const qs = shuffle(QUIZ).slice(0, 3).map(quizItem); const fs = shuffle(FACTS).slice(0, 2).map(factItem); return shuffle([...qs, ...fs]); } };
 
 export const GAMES = { syllabes, lettres, lire, compter, dessin, equilibre, quiz };

@@ -3,6 +3,12 @@
 PWA douce, façon Duolingo, pour un enfant de 6 ans qui ne lit pas encore.
 Zéro dépendance, zéro build : des fichiers HTML/CSS/JS, hébergés sur GitHub Pages.
 
+## Parcours
+
+Comme Duolingo : un chemin de **paliers numérotés** (30, par unités de 6). Chaque palier est une série de 6 exercices qui **mélange tous les mini-jeux** (syllabes, lecture, calcul, quiz, tracé + un jeu spécial : dessin ou tour). La difficulté monte tous les 3 paliers. Palier réussi à 50 % → suivant débloqué, 1 à 3 étoiles selon le score.
+
+Bouton **🎯 Entraînement** : tous les mini-jeux en accès libre, pour s'entraîner sur un seul.
+
 ## Les 7 mini-jeux
 
 | Jeu | Ce qu'on apprend |
@@ -67,4 +73,5 @@ npx serve .      # ou python3 -m http.server
 - **Quiz « situations »** : une image-problème (un chat pleure en haut d'un arbre, un feu dans la cuisine…) et 4 solutions dont une seule bonne (appeler les pompiers, etc.). Même moteur que le quiz, nouveau type de contenu dans `data.js`.
 - **Défi dessin validé par les parents** : après certains défis, l'enfant doit dessiner un personnage kawaii et le montrer à papa/maman ; le parent valide depuis l'espace parents (ou son téléphone via le lien famille) et envoie un « bravo » qui s'affiche chez l'enfant.
 - **Simon** : reproduire une séquence de notes/couleurs qui s'allonge, comme le vrai jeu (mémoire + écoute). Sons en WebAudio, déjà en place.
+- Icône/mascotte : licorne dodue originale (pas une reprise d'illustration existante).
 - Niveaux plus progressifs pour le tracé (pénaliser doucement le gribouillage hors de la lettre).

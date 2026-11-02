@@ -10,6 +10,8 @@ const defaults = () => ({
   time: {},
   drawings: [],
   settings: { voice: true, timer: 10, sync: { url: 'https://pompon-be86b-default-rtdb.europe-west1.firebasedatabase.app', code: '' } },
+  level: 1,
+  levels: {},
   lock: null,
   updatedAt: 0,
 });
@@ -39,7 +41,7 @@ function switchProfile(p) {
 }
 const dom = (id) => state.domains[id] || (state.domains[id] = { level: 1, stars: 0, lessons: 0 });
 const today = () => new Date().toISOString().slice(0, 10);
-const totalStars = () => Object.values(state.domains).reduce((a, d) => a + d.stars, 0);
+const totalStars = () => Object.values(state.domains).reduce((a, d) => a + d.stars, 0) + Object.values(state.levels || {}).reduce((a, b) => a + b, 0);
 function streak() {
   let n = 0; const d = new Date();
   while (true) { const k = d.toISOString().slice(0, 10); if ((state.time[k] || 0) >= 60) { n++; d.setDate(d.getDate() - 1); } else break; if (n > 365) break; }
@@ -105,7 +107,7 @@ export const shuffle = (a) => { a = [...a]; for (let i = a.length - 1; i > 0; i-
 export const pick = (a) => a[Math.floor(Math.random() * a.length)];
 export const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const app = $('#app');
-const mascotSVG = (cls = '') => `<svg class="mascot ${cls}" viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="58" rx="38" ry="34" fill="#FFD7E2"/><path d="M20 40 L14 10 L40 30 Z M80 40 L86 10 L60 30 Z" fill="#FFD7E2"/><path d="M22 36 L18 16 L36 30 Z M78 36 L82 16 L64 30 Z" fill="#FF8FAB"/><circle cx="37" cy="58" r="4.5" fill="#4A3F55"/><circle cx="63" cy="58" r="4.5" fill="#4A3F55"/><circle cx="38.5" cy="56.5" r="1.5" fill="#fff"/><circle cx="64.5" cy="56.5" r="1.5" fill="#fff"/><path d="M47 66 L53 66 L50 70 Z" fill="#E8718F"/><path d="M44 72 Q50 77 56 72" stroke="#4A3F55" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="26" cy="68" r="5" fill="#FFB3C6" opacity=".8"/><circle cx="74" cy="68" r="5" fill="#FFB3C6" opacity=".8"/></svg>`;
+const mascotSVG = (cls = '') => `<svg class="mascot ${cls}" viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="horn" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FFB36B"/><stop offset="1" stop-color="#FFD75E"/></linearGradient><linearGradient id="mane" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C7A4FF"/><stop offset="1" stop-color="#FFA2C0"/></linearGradient><linearGradient id="tail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6CCBFF"/><stop offset="1" stop-color="#FFA2C0"/></linearGradient></defs><g transform="translate(100 168)"><path d="M-52 0 a14 14 0 0 1 24 -8 a16 16 0 0 1 30 -4 a16 16 0 0 1 30 4 a14 14 0 0 1 20 8 z" fill="#8BDC8B"/><path d="M-44 0 a13 13 0 0 1 22 -6 a15 15 0 0 1 26 -2 a15 15 0 0 1 24 4 a12 12 0 0 1 16 4 z" fill="#FFD75E"/><path d="M-36 0 a12 12 0 0 1 20 -4 a14 14 0 0 1 22 0 a13 13 0 0 1 20 4 z" fill="#FFA2C0"/><path d="M-26 0 a10 10 0 0 1 16 -2 a12 12 0 0 1 20 2 z" fill="#C7A4FF"/><path d="M-16 0 a8 8 0 0 1 14 0 z" fill="#6CCBFF"/><ellipse cx="-62" cy="-2" rx="5" ry="3" fill="#6CCBFF"/><ellipse cx="62" cy="-4" rx="5" ry="3" fill="#8BDC8B"/><ellipse cx="-56" cy="-14" rx="3" ry="2" fill="#FFA2C0"/></g><path d="M138 118 q26 -4 24 22 q-2 18 -20 18 q12 -8 8 -20 q-3 -10 -14 -12 z" fill="url(#tail)"/><ellipse cx="100" cy="112" rx="40" ry="46" fill="#fff" stroke="#EDE3F5" stroke-width="3"/><ellipse cx="78" cy="152" rx="11" ry="9" fill="#fff" stroke="#EDE3F5" stroke-width="3"/><ellipse cx="122" cy="152" rx="11" ry="9" fill="#fff" stroke="#EDE3F5" stroke-width="3"/><ellipse cx="78" cy="156" rx="7" ry="3.5" fill="#FFA2C0"/><ellipse cx="122" cy="156" rx="7" ry="3.5" fill="#FFA2C0"/><ellipse cx="62" cy="112" rx="9" ry="7" fill="#fff" stroke="#EDE3F5" stroke-width="3" transform="rotate(-20 62 112)"/><ellipse cx="138" cy="112" rx="9" ry="7" fill="#fff" stroke="#EDE3F5" stroke-width="3" transform="rotate(20 138 112)"/><path d="M100 126 l-6 -6 a4 4 0 0 1 6 -4 a4 4 0 0 1 6 4 z" fill="#FF8B8B"/><ellipse cx="100" cy="72" rx="36" ry="32" fill="#fff" stroke="#EDE3F5" stroke-width="3"/><path d="M70 52 l-4 -22 l16 14 z" fill="#fff" stroke="#EDE3F5" stroke-width="3" stroke-linejoin="round"/><path d="M130 52 l4 -22 l-16 14 z" fill="#fff" stroke="#EDE3F5" stroke-width="3" stroke-linejoin="round"/><path d="M72 48 l-2 -12 l9 8 z" fill="#FFA2C0"/><path d="M128 48 l2 -12 l-9 8 z" fill="#FFA2C0"/><path d="M100 42 l-8 2 l8 -30 l8 30 z" fill="url(#horn)"/><path d="M95 32 l10 -2 M94 26 l8 -2 M96 20 l5 -1" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/><path d="M110 40 q22 -6 28 14 q2 10 -8 18 q6 -10 -4 -16 q-10 -4 -16 -2 z" fill="url(#mane)"/><path d="M90 40 q-18 -4 -24 12 q4 -6 14 -4 z" fill="url(#mane)"/><ellipse cx="86" cy="74" rx="6" ry="7.5" fill="#4A4458"/><ellipse cx="114" cy="74" rx="6" ry="7.5" fill="#4A4458"/><circle cx="88.5" cy="71" r="2.4" fill="#fff"/><circle cx="116.5" cy="71" r="2.4" fill="#fff"/><ellipse cx="72" cy="84" rx="7" ry="4.5" fill="#FFC7D6"/><ellipse cx="128" cy="84" rx="7" ry="4.5" fill="#FFC7D6"/><path d="M94 88 q6 6 12 0" stroke="#4A4458" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="95" cy="83" r="1.6" fill="#D9C9E8"/><circle cx="105" cy="83" r="1.6" fill="#D9C9E8"/></svg>`;
 
 function confetti() {
   const c = h('div', { class: 'confetti' });
@@ -121,64 +123,109 @@ export function sheet(content, { dismiss = true } = {}) {
 }
 export function closeSheet() { overlay.hidden = true; overlay.innerHTML = ''; }
 
+/* ============================== Paliers (séries mélangées) ============================== */
+const LEVELS = 30, PER_UNIT = 6;
+const difficultyOf = (k) => Math.min(9, Math.ceil(k / 3));
+const UNIT_COLORS = [['var(--blue)', 'var(--blue-d)'], ['var(--green)', 'var(--green-d)'], ['var(--purple)', 'var(--purple-d)'], ['var(--orange)', 'var(--orange-d)'], ['var(--pink)', 'var(--pink-d)']];
+const unitColor = (k) => UNIT_COLORS[Math.floor((k - 1) / PER_UNIT) % UNIT_COLORS.length];
+function buildSeries(k) {
+  const lvl = difficultyOf(k);
+  const special = k % 3 === 0 ? 'dessin' : k % 3 === 1 ? 'equilibre' : pick(['quiz', 'syllabes']);
+  const ids = shuffle(['syllabes', 'lire', 'compter', 'quiz', 'lettres', special]);
+  return ids.map(id => ({ ...GAMES[id].one(lvl), domain: id }));
+}
+
 /* ============================== Écran d'accueil ============================== */
+function topbar() {
+  return h('div', { class: 'topbar' },
+    h('div', { html: mascotSVG('bounce') }),
+    h('div', { class: 'who' }, h('div', { class: 'name' }, state.child), h('div', { class: 'sub' }, `${streak()} jour${streak() > 1 ? 's' : ''} de suite ☀️`)),
+    profile === 'test' && h('span', { class: 'pill warn' }, '🧪 test'),
+    h('span', { class: 'pill' }, h('b', { class: 'ico' }, '⭐'), String(totalStars())),
+    h('button', { class: 'lock', 'aria-label': 'Espace parents', onclick: () => gate(parent) }, '🔒'),
+  );
+}
 function home() {
   window.speechSynthesis?.cancel?.();
   app.innerHTML = '';
+  const cur = state.level || 1;
   const hour = new Date().getHours();
   const hello = hour < 12 ? 'Bonjour' : hour < 18 ? 'Coucou' : 'Bonsoir';
-  const msg = `${hello} ${state.child} ! On joue à quoi aujourd'hui ?`;
+  const msg = `${hello} ${state.child} ! On continue au palier ${cur} ?`;
+  const path = h('div', { class: 'path' });
+  const offsets = [0, 1, 2, 1, 0, -1, -2, -1];
+  let current = null;
+  for (let k = 1; k <= LEVELS; k++) {
+    const [c, cd] = unitColor(k);
+    if ((k - 1) % PER_UNIT === 0) path.append(h('div', { class: 'unit', style: `--c:${c};--cd:${cd}`, 'data-label': `Unité ${Math.floor((k - 1) / PER_UNIT) + 1}` }));
+    const st = k < cur ? 'done' : k === cur ? 'current' : 'locked';
+    const stars = state.levels?.[k] || 0;
+    const node = h('div', { class: `lnode ${st}`, style: `--c:${c};--cd:${cd};--x:${offsets[(k - 1) % offsets.length] * 56}px` },
+      st === 'current' && h('div', { class: 'go' }, 'C’est parti !'),
+      h('button', { class: 'lvl-disc', disabled: st === 'locked', 'aria-label': `Palier ${k}`, onclick: () => { sfx.tap(); lesson({ kind: 'level', k }); } }, st === 'locked' ? '🔒' : String(k)),
+      st === 'done' && h('div', { class: 'lstars' }, '⭐'.repeat(stars) + '☆'.repeat(3 - stars)),
+    );
+    if (st === 'current') current = node;
+    path.append(node);
+  }
   app.append(
-    h('div', { class: 'topbar' },
-      h('div', { html: mascotSVG('bounce') }),
-      h('div', { class: 'who' }, h('div', { class: 'name' }, state.child), h('div', { class: 'sub' }, `${streak()} jour${streak() > 1 ? 's' : ''} de suite ☀️`)),
-      profile === 'test' && h('span', { class: 'pill', style: 'background:#FFF1E8;border-color:var(--orange)' }, '🧪 test'),
-      h('span', { class: 'pill' }, '⭐ ', String(totalStars())),
-      h('button', { class: 'lock', 'aria-label': 'Espace parents', onclick: () => gate(parent) }, '🔒'),
+    topbar(),
+    h('div', { class: 'hello' }, h('div', { class: 'bubble' }, msg), h('button', { class: 'speak', 'aria-label': 'Écouter', onclick: () => speak(msg) }, '🔊')),
+    h('div', { class: 'quick' },
+      h('button', { class: 'btn teal', onclick: training }, '🎯 Entraînement'),
+      h('button', { class: 'btn ghost', onclick: gallery }, '🖼️ Mes dessins'),
     ),
-    h('div', { class: 'hello' },
-      h('div', { class: 'bubble' }, msg),
-      h('button', { class: 'speak', 'aria-label': 'Écouter', onclick: () => speak(msg) }, '🔊'),
-    ),
-    h('div', { class: 'path' }, DOMAINS.map(d => {
+    path,
+  );
+  if (current) setTimeout(() => current.scrollIntoView({ block: 'center', behavior: 'smooth' }), 100);
+}
+
+/* ============================== Entraînement (tous les mini-jeux) ============================== */
+function training() {
+  app.innerHTML = '';
+  app.append(
+    h('button', { class: 'back', onclick: home }, '‹ Retour'),
+    h('h1', {}, '🎯 Entraînement'),
+    h('p', { class: 'muted', style: 'margin:-6px 0 14px' }, 'Choisis un jeu et entraîne-toi autant que tu veux.'),
+    h('div', { class: 'games' }, DOMAINS.map(d => {
       const s = dom(d.id);
-      return h('div', { class: 'node' },
-        h('button', { class: 'disc', style: `--c:${d.color};--cd:${d.dark}`, onclick: () => { sfx.tap(); lesson(d.id); } }, d.emoji, h('span', { class: 'lvl' }, `niv. ${s.level}`)),
-        h('div', { class: 'label' }, d.name),
-        h('div', { class: 'stars' }, `⭐ ${s.stars}`),
-      );
+      return h('button', { class: 'gcard', style: `--c:${d.color};--cd:${d.dark}`, onclick: () => { sfx.tap(); lesson({ kind: 'train', id: d.id }); } },
+        h('span', { class: 'gico' }, d.emoji), h('span', { class: 'gname' }, d.name), h('span', { class: 'gsub' }, `⭐ ${s.stars}`));
     })),
-    h('button', { class: 'btn ghost gallery-link', onclick: gallery }, '🖼️ Mes dessins'),
   );
 }
 
 /* ============================== Moteur de leçon ============================== */
-function lesson(id) {
-  const d = DOMAINS.find(x => x.id === id);
-  const s = dom(id);
-  const exercises = GAMES[id].build(s.level);
+function lesson(opts) {
+  const isLevel = opts.kind === 'level';
+  const d = isLevel ? null : DOMAINS.find(x => x.id === opts.id);
+  const s = isLevel ? null : dom(opts.id);
+  const lvl = isLevel ? difficultyOf(opts.k) : s.level;
+  const exercises = isLevel ? buildSeries(opts.k) : GAMES[opts.id].build(lvl).map(e => ({ ...e, domain: opts.id }));
+  const [c, cd] = isLevel ? unitColor(opts.k) : [d.color, d.dark];
   let i = 0, points = 0, missed = false, answered = false;
   app.innerHTML = '';
-  document.documentElement.style.setProperty('--primary', d.color);
-  document.documentElement.style.setProperty('--primary-d', d.dark);
+  document.documentElement.style.setProperty('--primary', c);
+  document.documentElement.style.setProperty('--primary-d', cd);
   const bar = h('i');
+  const tag = h('div', { class: 'gametag' });
   const promptEl = h('div', { class: 'prompt' });
   const stage = h('div', { class: 'stage' });
   const foot = h('div', { class: 'lesson-foot', hidden: true });
   app.append(
     h('div', { class: 'lesson-head' }, h('button', { class: 'close', 'aria-label': 'Quitter', onclick: () => { sfx.tap(); home(); } }, '✕'), h('div', { class: 'progress' }, bar)),
-    promptEl, stage, foot,
+    tag, promptEl, stage, foot,
   );
-  speak(d.intro);
+  speak(isLevel ? `Palier ${opts.k} ! Six petits jeux, c'est parti.` : d.intro);
 
   function showFoot(kind, title, sub, btnLabel, action) {
     foot.hidden = false; foot.className = `lesson-foot ${kind}`; foot.innerHTML = '';
     foot.append(h('div', { class: 'inner', style: 'flex-direction:column' },
       h('div', { class: 'feedback' }, kind === 'ok' ? '🎉' : '🌱', h('div', {}, title, sub && h('small', {}, sub))),
-      h('button', { class: `btn ${kind === 'ok' ? '' : 'orange'}`, onclick: action }, btnLabel)));
+      h('button', { class: `btn ${kind === 'ok' ? 'green' : 'orange'}`, onclick: action }, btnLabel)));
   }
   const ctx = {
-    level: s.level, speak, sfx, state,
+    level: lvl, speak, sfx, state,
     ok(gain = 1) {
       if (answered) return; answered = true;
       if (!missed) points += gain;
@@ -200,6 +247,8 @@ function lesson(id) {
   function mount() {
     bar.style.width = `${(i / exercises.length) * 100}%`;
     const ex = exercises[i];
+    const gd = DOMAINS.find(x => x.id === ex.domain);
+    tag.innerHTML = ''; tag.append(h('span', { class: 'gtag', style: `--c:${gd.color};--cd:${gd.dark}` }, gd.emoji, ' ', gd.name));
     promptEl.innerHTML = ''; stage.innerHTML = '';
     for (let n = stage.nextSibling; n && n !== foot;) { const x = n; n = n.nextSibling; x.remove(); }
     promptEl.append(ex.prompt, h('button', { class: 'say', 'aria-label': 'Écouter', onclick: () => speak(ex.say || ex.prompt) }, '🔊'));
@@ -210,19 +259,30 @@ function lesson(id) {
     bar.style.width = '100%';
     const max = exercises.reduce((a, e) => a + (e.gain || 1), 0);
     const ratio = points / max;
-    s.stars += points; s.lessons++;
-    if (ratio >= 0.8) s.level = Math.min(s.level + 1, 9);
+    let passed, starsWon = ratio >= 0.95 ? 3 : ratio >= 0.75 ? 2 : ratio >= 0.5 ? 1 : 0;
+    if (isLevel) {
+      passed = ratio >= 0.5;
+      state.levels = state.levels || {};
+      if (passed) { state.levels[opts.k] = Math.max(state.levels[opts.k] || 0, starsWon); if (opts.k === (state.level || 1)) state.level = Math.min(LEVELS, opts.k + 1); }
+      for (const e of exercises) dom(e.domain).lessons++;
+    } else {
+      passed = ratio >= 0.8;
+      s.stars += points; s.lessons++;
+      if (passed) s.level = Math.min(s.level + 1, 9);
+    }
     save(); syncPush();
-    sfx.win(); confetti();
-    const txt = ratio >= 0.8 ? `Bravo ${state.child} ! Tu as gagné ${points} étoiles !` : `Bien joué ${state.child} ! ${points} étoiles. On continue de s'entraîner.`;
+    if (passed) { sfx.win(); confetti(); } else sfx.ok();
+    const txt = passed
+      ? (isLevel ? `Bravo ${state.child} ! Palier ${opts.k} réussi !` : `Bravo ${state.child} ! Tu as gagné ${points} étoiles !`)
+      : `Bien joué ${state.child} ! On réessaie quand tu veux.`;
     speak(txt);
     sheet([
       h('div', { html: mascotSVG('bounce') }),
-      h('div', { class: 'big' }, '⭐'.repeat(Math.max(1, Math.round(ratio * 3)))),
-      h('h2', {}, ratio >= 0.8 ? 'Bravo !' : 'Bien joué !'),
-      h('p', {}, `${points} étoile${points > 1 ? 's' : ''} sur ${max}${ratio >= 0.8 ? ' · niveau suivant !' : ''}`),
-      h('button', { class: 'btn', onclick: () => { closeSheet(); home(); } }, 'Retour à la maison 🏠'),
-      h('button', { class: 'btn ghost', onclick: () => { closeSheet(); lesson(id); } }, 'Encore une fois !'),
+      h('div', { class: 'big' }, '⭐'.repeat(Math.max(1, starsWon)) + '☆'.repeat(3 - Math.max(1, starsWon))),
+      h('h2', {}, passed ? 'Bravo !' : 'Bien joué !'),
+      h('p', {}, `${points} étoile${points > 1 ? 's' : ''} sur ${max}${passed && isLevel ? ' · palier suivant débloqué !' : ''}`),
+      h('button', { class: 'btn green', onclick: () => { closeSheet(); home(); } }, 'Retour à la maison 🏠'),
+      h('button', { class: 'btn ghost', onclick: () => { closeSheet(); lesson(opts); } }, 'Encore une fois !'),
     ], { dismiss: false });
   }
   mount();
@@ -297,6 +357,8 @@ function parent() {
     h('h1', {}, '👨‍👩‍👧 Espace parents'),
     h('div', { class: 'card' },
       h('h3', {}, 'Progrès'),
+      h('div', { class: 'row' }, h('span', {}, '🏁 Palier actuel'), h('b', {}, `${state.level || 1} / ${LEVELS}`)),
+      h('div', { class: 'row' }, h('span', {}, '⭐ Étoiles de paliers'), h('b', {}, String(Object.values(state.levels || {}).reduce((a, b) => a + b, 0)))),
       DOMAINS.map(d => { const s = dom(d.id); return h('div', { class: 'row' }, h('span', {}, `${d.emoji} ${d.name}`), h('div', { class: 'bar', style: `--c:${d.color}` }, h('i', { style: `width:${Math.min(100, (s.level - 1) / 8 * 100)}%` })), h('span', { class: 'muted' }, `niv. ${s.level} · ⭐ ${s.stars}`)); }),
     ),
     h('div', { class: 'card' },

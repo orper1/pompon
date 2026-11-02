@@ -33,6 +33,9 @@ export function merge(local, remote) {
     const l = out.domains[id] || { level: 1, stars: 0, lessons: 0 };
     out.domains[id] = { level: Math.max(l.level, d.level || 1), stars: Math.max(l.stars, d.stars || 0), lessons: Math.max(l.lessons, d.lessons || 0) };
   }
+  out.level = Math.max(out.level || 1, remote.level || 1);
+  out.levels = out.levels || {};
+  for (const [k, v] of Object.entries(remote.levels || {})) out.levels[k] = Math.max(out.levels[k] || 0, v);
   out.time = out.time || {};
   for (const [day, s] of Object.entries(remote.time || {})) out.time[day] = Math.max(out.time[day] || 0, s);
   const seen = new Set((out.drawings || []).map(d => d.id));
