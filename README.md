@@ -63,3 +63,10 @@ npx serve .      # ou python3 -m http.server
 - `app.js` : accueil, moteur de leçon, minuteur, espace parents, voix.
 - `sync.js` : synchronisation Firebase (REST).
 - `sw.js` : cache hors ligne. Pensez à changer `CACHE = 'pompon-vN'` quand vous publiez une nouvelle version.
+
+## Feuille de route (idées notées)
+
+- **Quiz « situations »** : une image-problème (un chat pleure en haut d'un arbre, un feu dans la cuisine…) et 4 solutions dont une seule bonne (appeler les pompiers, etc.). Même moteur que le quiz, nouveau type de contenu dans `data.js`.
+- **Défi dessin validé par les parents** : après certains défis, l'enfant doit dessiner un personnage kawaii et le montrer à papa/maman ; le parent valide depuis l'espace parents (ou son téléphone via le lien famille) et envoie un « bravo » qui s'affiche chez l'enfant.
+- **Simon** : reproduire une séquence de notes/couleurs qui s'allonge, comme le vrai jeu (mémoire + écoute). Sons en WebAudio, déjà en place.
+- Niveaux plus progressifs pour le tracé (pénaliser doucement le gribouillage hors de la lettre).
