@@ -50,9 +50,15 @@ function streak() {
 
 /* ============================== Voix & sons ============================== */
 let voice = null;
+const frVoices = () => ('speechSynthesis' in window ? speechSynthesis.getVoices() : []).filter(v => v.lang && v.lang.toLowerCase().startsWith('fr'));
+// Score : voix premium/enhanced/neurales d'abord, puis les voix connues pour être fluides.
+const voiceScore = (v) => (/premium/i.test(v.name) ? 40 : 0) + (/enhanced|améliorée|neural|natural|wavenet/i.test(v.name) ? 30 : 0)
+  + (/audrey|am[ée]lie|aurelie|thomas|google.*fran|siri/i.test(v.name) ? 10 : 0) + (/compact|eloquence|grandma|grandpa|flo|shelley|sandy|rocko|reed|bells|boing|bubbles|cellos|zarvox|trinoids|jester|organ|whisper|wobble|good news|bad news|superstar|fred|junior|kathy|ralph|albert/i.test(v.name) ? -50 : 0)
+  + (v.lang.toLowerCase() === 'fr-fr' ? 5 : 0);
 function pickVoice() {
-  const vs = speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith('fr'));
-  voice = vs.find(v => /am[ée]lie|aurelie|thomas|google.*fran/i.test(v.name)) || vs[0] || null;
+  const vs = frVoices().sort((a, b) => voiceScore(b) - voiceScore(a));
+  const wanted = state.settings.voiceName && vs.find(v => v.name === state.settings.voiceName);
+  voice = wanted || vs[0] || null;
 }
 if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
 export function speak(text, opts = {}) {
@@ -61,7 +67,8 @@ export function speak(text, opts = {}) {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'fr-FR'; if (voice) u.voice = voice;
-    u.rate = opts.rate || 0.85; u.pitch = opts.pitch || 1.15;
+    const premium = voice && /premium|enhanced|améliorée|neural|natural/i.test(voice.name);
+    u.rate = opts.rate || (premium ? 0.95 : 0.85); u.pitch = opts.pitch || (premium ? 1.05 : 1.15);
     speechSynthesis.speak(u);
   } catch {}
 }
@@ -139,7 +146,7 @@ function buildSeries(k) {
 function topbar() {
   return h('div', { class: 'topbar' },
     h('div', { html: mascotSVG('bounce') }),
-    h('div', { class: 'who' }, h('div', { class: 'name' }, state.child), h('div', { class: 'sub' }, `☀️ ${streak()} jour${streak() > 1 ? 's' : ''} de suite`)),
+    h('div', { class: 'who' }, h('div', { class: 'name' }, state.child), h('div', { class: 'sub' }, `☀️ ${streak()} jour${streak() > 1 ? 's' : ''}`)),
     profile === 'test' && h('span', { class: 'pill warn' }, '🧪 test'),
     h('span', { class: 'pill' }, h('b', { class: 'ico' }, '⭐'), String(totalStars())),
     h('button', { class: 'lock', 'aria-label': 'Espace parents', onclick: () => gate(parent) }, '🔒'),
@@ -372,6 +379,13 @@ function parent() {
       h('div', { class: 'field' }, h('label', {}, 'Prénom de l’enfant'), h('input', { type: 'text', value: state.child, oninput: (e) => { state.child = e.target.value || 'Mon trésor'; save(); } })),
       h('div', { class: 'field' }, h('label', {}, 'Minuteur par défaut'), h('select', { onchange: (e) => { state.settings.timer = Number(e.target.value); save(); } }, [5, 10, 15, 20, 30].map(m => h('option', { value: m, selected: state.settings.timer === m }, `${m} minutes`)))),
       h('div', { class: 'row' }, h('span', {}, 'Voix (lecture à haute voix)'), h('button', { class: `btn sm ${state.settings.voice ? '' : 'ghost'}`, onclick: (e) => { state.settings.voice = !state.settings.voice; save(); e.target.textContent = state.settings.voice ? 'Activée' : 'Coupée'; e.target.className = `btn sm ${state.settings.voice ? '' : 'ghost'}`; } }, state.settings.voice ? 'Activée' : 'Coupée')),
+      h('div', { class: 'field', style: 'margin-top:10px' }, h('label', {}, 'Quelle voix ? (les voix « Premium » ou « Améliorée » sont bien plus fluides)'),
+        h('div', { style: 'display:flex;gap:8px;align-items:center' },
+          h('select', { style: 'flex:1', onchange: (e) => { state.settings.voiceName = e.target.value; save(); pickVoice(); speak(`Bonjour ${state.child} ! On joue ensemble ?`); } },
+            h('option', { value: '', selected: !state.settings.voiceName }, 'Automatique (la meilleure dispo)'),
+            frVoices().sort((a, b) => voiceScore(b) - voiceScore(a)).map(v => h('option', { value: v.name, selected: state.settings.voiceName === v.name }, `${v.name} (${v.lang})`))),
+          h('button', { class: 'btn sm teal', onclick: () => speak(`Bonjour ${state.child} ! On joue ensemble ?`) }, '🔊')),
+        h('p', { class: 'muted', style: 'margin:8px 0 0' }, 'Pour une voix bien plus naturelle sur iPad : Réglages → Accessibilité → Contenu énoncé → Voix → Français → télécharger « Audrey (Premium) » ou « Thomas (Premium) », puis revenir ici et la choisir.')),
     ),
     profileCard,
     syncCard,
@@ -453,7 +467,7 @@ setInterval(() => {
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') syncPush(); });
 
 /* ============================== Démarrage ============================== */
-export const VERSION = '2.2';
+export const VERSION = '2.3';
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').then(reg => { reg.update(); setInterval(() => reg.update(), 60 * 60 * 1000); }).catch(() => {});
   let reloaded = false;
